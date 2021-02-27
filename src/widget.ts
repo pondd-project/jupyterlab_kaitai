@@ -44,6 +44,7 @@ export class HexViewerModel extends DOMWidgetModel {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
     this.buffer = new Uint8Array(this.get('buffer'));
