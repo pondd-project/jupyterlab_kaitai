@@ -9,6 +9,7 @@ import { UUID } from '@lumino/coreutils';
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
 import { HexViewer, IDataProvider } from './HexViewer';
+import { ConverterPanelModel } from './converterpanel';
 
 function serializeArray(array: Uint8Array): DataView {
   return new DataView(array.buffer.slice(0));
@@ -76,10 +77,18 @@ export class HexViewerView extends DOMWidgetView {
     this.div.classList.add('HexViewer-view');
     this.div.classList.add('hexViewer');
     this.el.appendChild(this.div);
-    this.viewer = new HexViewer(this.div, this.model.getDataProvider());
+    this.dataProvider = this.model.getDataProvider();
+    this.viewer = new HexViewer(this.div, this.dataProvider);
+    this.converterPanel = new ConverterPanelModel();
+    this.converterPanel.update(this.dataProvider, -1);
     await this.setupEventListeners();
     this.displayed.then(() => {
       this.viewer.resize();
+      this.viewer.onSelectionChanged = () =>
+        this.converterPanel.update(
+          this.dataProvider,
+          this.viewer.selectionStart
+        );
     });
   }
 
@@ -88,6 +97,8 @@ export class HexViewerView extends DOMWidgetView {
   }
 
   viewer: HexViewer;
+  converterPanel: ConverterPanelModel;
+  dataProvider: HexViewerDataProvider;
   model: HexViewerModel;
   div: HTMLDivElement;
   divId: string;
