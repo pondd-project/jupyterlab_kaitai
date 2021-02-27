@@ -22,10 +22,8 @@ class HexViewerDataProvider implements IDataProvider {
   constructor(buffer: Uint8Array) {
     this.length = buffer.length;
     this.buffer = buffer;
-    console.log('full length', this.length);
   }
   get(offset: number, length: number): Uint8Array {
-    console.log('Being asked for ', offset, length);
     return this.buffer.slice(offset, offset + length);
   }
 
@@ -56,7 +54,6 @@ export class HexViewerModel extends DOMWidgetModel {
   };
 
   getDataProvider(): HexViewerDataProvider {
-    console.log('data provider', this.buffer);
     return new HexViewerDataProvider(this.buffer);
   }
 
