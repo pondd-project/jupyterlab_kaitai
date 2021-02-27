@@ -90,7 +90,7 @@ export class ConverterPanelModel {
       for (const signed of [false, true]) {
         for (const bigEndian of [false, true]) {
           const convRes = Converter.numConv(data, len, signed, bigEndian);
-          const propName = `${signed ? 's' : 'u'}${len * 8}${
+          const propName = `${signed ? 'i' : 'u'}${len * 8}${
             len === 1 ? '' : bigEndian ? 'be' : 'le'
           }`;
           this.type_conversion_results.set(propName, convRes);
