@@ -112,44 +112,42 @@ export class HexViewer {
   public selectionStart = -1;
   public selectionEnd = -1;
   public onSelectionChanged: () => void;
+  private mouseActionListener: EventListener;
 
   private isRecursive: boolean;
 
   private cellMouseAction(e: MouseEvent) {
-    if (e.button !== 1) {
+    if (e.button !== 0) {
       return;
     } // only handle left mouse button actions
 
     if (e.type === 'mouseup') {
-      this.content.removeEventListener('mousemove', this.cellMouseAction);
+      this.content.removeEventListener('mousemove', this.mouseActionListener);
     }
 
-    let cell: HTMLElement = e.currentTarget as HTMLElement;
-    if (!('dataOffset' in cell)) {
+    let cell: IHexViewerCell = e.target as IHexViewerCell;
+    if (cell.dataOffset === undefined) {
       const cells = cell.getElementsByClassName('.hexcell, .asciicell');
       if (cells.length === 1) {
-        cell = cells.item(0) as HTMLElement;
+        cell = cells.item(0) as IHexViewerCell;
       }
     }
 
-    if ('offset' in cell.dataset) {
+    if (cell.dataOffset !== undefined) {
       if (e.type === 'mousedown') {
         this.canDeselect =
-          this.selectionStart === parseInt(cell.dataset.offset) &&
-          this.selectionEnd === parseInt(cell.dataset.offset);
-        this.mouseDownOffset = parseInt(cell.dataset.offset);
-        this.content.addEventListener('mousemove', this.cellMouseAction);
-        this.setSelection(
-          parseInt(cell.dataset.offset),
-          parseInt(cell.dataset.offset)
-        );
+          this.selectionStart === cell.dataOffset &&
+          this.selectionEnd === cell.dataOffset;
+        this.mouseDownOffset = cell.dataOffset;
+        this.content.addEventListener('mousemove', this.mouseActionListener);
+        this.setSelection(cell.dataOffset, cell.dataOffset);
       } else if (e.type === 'mousemove') {
-        this.setSelection(this.mouseDownOffset, parseInt(cell.dataset.offset));
+        this.setSelection(this.mouseDownOffset, cell.dataOffset);
         this.canDeselect = false;
       } else if (
         e.type === 'mouseup' &&
         this.canDeselect &&
-        this.mouseDownOffset === parseInt(cell.dataset.offset)
+        this.mouseDownOffset === cell.dataOffset
       ) {
         this.deselect();
       }
@@ -161,6 +159,7 @@ export class HexViewer {
 
   constructor(container: HTMLElement, public dataProvider?: IDataProvider) {
     this.dataProvider = dataProvider;
+    this.mouseActionListener = this.cellMouseAction.bind(this) as EventListener;
 
     this.scrollbox = container;
     this.scrollbox.classList.add('scrollbox');
@@ -190,8 +189,8 @@ export class HexViewer {
     this.content = document.createElement('div');
     this.content.classList.add('content');
     this.contentOuter.appendChild(this.content);
-    this.content.addEventListener('mousedown', this.cellMouseAction);
-    document.addEventListener('mouseup', this.cellMouseAction);
+    this.content.addEventListener('mousedown', this.mouseActionListener);
+    document.addEventListener('mouseup', this.mouseActionListener);
 
     this.intervals = null;
 
@@ -206,7 +205,7 @@ export class HexViewer {
       }
     });
 
-    window.addEventListener('resize', () => this.resize);
+    window.addEventListener('resize', this.resize.bind(this));
     this.resize();
 
     this.contentOuter.addEventListener('keydown', e => {
@@ -255,12 +254,7 @@ export class HexViewer {
       this.totalHeight = totalRowCount;
     }
     this.heightbox.style.height = this.totalHeight + 16 + 'px';
-    //console.log("totalRowCount", totalRowCount, "heightbox.height", this.heightbox.height(), "totalHeight", this.totalHeight);
 
-    console.log(
-      'computedstyle',
-      window.getComputedStyle(this.contentOuter, null)
-    );
     const boxHeight = parseInt(
       window
         .getComputedStyle(this.contentOuter, null)
@@ -268,9 +262,7 @@ export class HexViewer {
     );
     this.content.innerHTML = '';
     this.maxScrollHeight = this.totalHeight - boxHeight;
-    console.log('setting rowcount', boxHeight, this.rowHeight);
     this.rowCount = Math.ceil(boxHeight / this.rowHeight);
-    //console.log("boxHeight", boxHeight, "rowCount", this.rowCount);
     this.maxRow = Math.ceil(
       this.dataProvider.length / this.bytesPerLine - this.rowCount + 1
     );
@@ -306,14 +298,6 @@ export class HexViewer {
     const intervals = searchResult ? searchResult.items : [];
     const intBaseIdx = searchResult ? searchResult.idx : 0;
     let intIdx = 0;
-    console.log('intervals', intervals);
-    console.log(
-      'rowCount',
-      this.rowCount,
-      this.bytesPerLine,
-      this.dataProvider.length,
-      this.visibleOffsetStart
-    );
 
     const viewData = this.dataProvider.get(
       this.visibleOffsetStart,
@@ -350,7 +334,7 @@ export class HexViewer {
         hexCell.cell.innerText = hexCh;
         asciiCell.innerText = ch;
 
-        hexCell.cell.dataset.offset = '' + dataOffset;
+        hexCell.cell.dataOffset = dataOffset;
         asciiCell.dataset.offset = '' + dataOffset;
 
         const isSelected =
