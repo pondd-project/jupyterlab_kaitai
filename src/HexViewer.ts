@@ -335,7 +335,7 @@ export class HexViewer {
         asciiCell.innerText = ch;
 
         hexCell.cell.dataOffset = dataOffset;
-        asciiCell.dataset.offset = '' + dataOffset;
+        asciiCell.dataOffset = dataOffset;
 
         const isSelected =
           this.selectionStart <= dataOffset && dataOffset <= this.selectionEnd;
