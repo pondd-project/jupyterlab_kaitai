@@ -1,4 +1,5 @@
 ﻿.HexViewer-view { height: 300px; flex: 0 0 600px; }
+.HexViewer-standalone { height: '100%'; flex: 0 0 600px; }
 
 .hexViewer * { box-sizing: content-box }
 .hexViewer { background: white; color: #333; font-family: Courier,monospace; font-size: 12px; overflow-y: scroll; overflow-x: auto }

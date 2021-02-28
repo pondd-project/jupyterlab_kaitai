@@ -3,6 +3,9 @@ import { Widget } from '@lumino/widgets';
 import { HexViewer } from './HexViewer';
 import { HexViewerDataProvider } from './widget';
 import { base64ToBuffer } from '@jupyter-widgets/base';
+import { UUID } from '@lumino/coreutils';
+import { ConverterPanelModel } from './converterpanel';
+import { renderPanel } from './utils';
 
 /**
  * The default mime type for the extension.
@@ -25,15 +28,44 @@ export class OutputWidget extends Widget implements IRenderMime.IRenderer {
     super();
     this._mimeType = options.mimeType;
     this.addClass(CLASS_NAME);
+    this.div = document.createElement('div');
+    this.divId = 'HexViewer-' + UUID.uuid4();
+    this.div.setAttribute('id', this.divId);
+    this.div.classList.add('HexViewer-standalong');
+    this.div.classList.add('hexViewer');
+    this.node.appendChild(this.div);
+    this.node.classList.add('HexViewer-container');
+    this.dataProvider = undefined;
+    this.viewer = new HexViewer(this.div, this.dataProvider);
+    this.converterPanelModel = new ConverterPanelModel();
+    this.converterPanelModel.update(this.dataProvider, -1);
+    this.converterPanel = document.createElement('div');
+    this.converterPanel.classList.add('converterPanel');
+    this.node.appendChild(this.converterPanel);
+    this.viewer.onSelectionChanged = () => {
+      this.converterPanelModel.update(
+        this.dataProvider,
+        this.viewer.selectionStart
+      );
+      this.converterPanel.innerHTML = renderPanel(
+        this.converterPanelModel.type_conversion_results
+      );
+    };
   }
 
   /**
-   * Render {{cookiecutter.mimetype_name}} into this widget's node.
+   * Render into this widget's node.
    */
   renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-    const buffer = base64ToBuffer(model.data[this._mimeType] as string);
+    let s = model.data[this._mimeType] as string;
+    /* Manually pad the base64 string with '=' marks */
+    if (s.length % 4 > 0) {
+      s = s + '='.repeat(4 - (s.length % 4));
+    }
+    const buffer = base64ToBuffer(s);
     this.dataProvider = new HexViewerDataProvider(new Uint8Array(buffer));
-    this.viewer = new HexViewer(this.node, this.dataProvider);
+    this.viewer.dataProvider = this.dataProvider;
+    this.viewer.resize();
     return Promise.resolve();
   }
 
@@ -41,6 +73,10 @@ export class OutputWidget extends Widget implements IRenderMime.IRenderer {
     this.viewer.resize();
   }
 
+  divId: string;
+  div: HTMLDivElement;
+  converterPanel: HTMLDivElement;
+  converterPanelModel: ConverterPanelModel;
   private dataProvider: HexViewerDataProvider;
   private viewer: HexViewer;
   private _mimeType: string;
