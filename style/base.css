@@ -1,4 +1,4 @@
-﻿.HexViewer-view { height: 300px; width: 600px; }
+﻿.HexViewer-view { height: 300px; flex: 0 0 600px; }
 
 .hexViewer * { box-sizing: content-box }
 .hexViewer { background: white; color: #333; font-family: Courier,monospace; font-size: 12px; overflow-y: scroll; overflow-x: auto }
@@ -57,3 +57,14 @@
 .hexViewer .m3 { background: orange; }
 .hexViewer .m4 { background: purple; }
 /*.hexViewer .m0 .hexcell { color: white }*/
+
+.converterPanel { overflow-y: auto; height: 100%; flex: 1; }
+.converterPanel table { margin:10px; font: 12px/normal "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro", monospace; }
+.converterPanel table th { padding-bottom:3px }
+.converterPanel .typeCol { min-width:54px }
+.converterPanel .typeValue { min-width:155px }
+.converterPanel .str { overflow:hidden; line-height:16px; height:16px; display:block }    
+
+.HexViewer-container {
+    display: flex;
+}

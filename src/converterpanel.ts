@@ -51,7 +51,7 @@ export class Converter {
   }
 }
 
-const TYPES = [
+export const TYPES = [
   'i8',
   'i16le',
   'i32le',
@@ -59,6 +59,13 @@ const TYPES = [
   'i16be',
   'i32be',
   'i64be',
+  'u8',
+  'u16le',
+  'u32le',
+  'u64le',
+  'u16be',
+  'u32be',
+  'u64be',
   'float',
   'double',
   'unixts',
