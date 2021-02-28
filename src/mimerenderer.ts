@@ -19,7 +19,6 @@ export class OutputWidget extends Widget implements IRenderMime.IRenderer {
    * Construct a new output widget.
    */
   constructor(options: IRenderMime.IRendererOptions) {
-    console.log('Hey, making a new renderer');
     super();
     this._mimeType = options.mimeType;
     this.addClass(CLASS_NAME);
@@ -50,7 +49,7 @@ export const rendererFactory: IRenderMime.IRendererFactory = {
  * Extension definition.
  */
 const extension: IRenderMime.IExtension = {
-  id: ':plugin',
+  id: 'jupyterlab_kaitai_hexviewer:plugin',
   rendererFactory,
   rank: 0,
   dataType: 'string',
@@ -58,12 +57,12 @@ const extension: IRenderMime.IExtension = {
     {
       name: 'mimerenderer-hexviewer',
       mimeTypes: [MIME_TYPE],
-      extensions: ['*.bin']
+      extensions: ['.bin']
     }
   ],
   documentWidgetFactoryOptions: {
     name: 'hexviewer',
-    primaryFileType: 'application/octet-stream',
+    primaryFileType: 'mimerenderer-hexviewer',
     fileTypes: ['mimerenderer-hexviewer'],
     defaultFor: ['mimerenderer-hexviewer']
   }

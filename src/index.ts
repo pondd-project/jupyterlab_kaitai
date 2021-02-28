@@ -10,8 +10,6 @@ import { MimeDocument } from '@jupyterlab/docregistry';
 
 import { createRendermimePlugin } from '@jupyterlab/application/lib/mimerenderers';
 
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-
 import { MODULE_NAME, MODULE_VERSION } from './version';
 
 import { IJupyterWidgetRegistry } from '@jupyter-widgets/base';
@@ -28,15 +26,13 @@ const EXTENSION_NAME = MODULE_NAME + ':plugin';
 const extension: JupyterFrontEndPlugin<void> = {
   id: EXTENSION_NAME,
   autoStart: true,
-  requires: [IJupyterWidgetRegistry, IRenderMimeRegistry, IMimeDocumentTracker],
+  requires: [IJupyterWidgetRegistry, IMimeDocumentTracker],
   activate: (
     app: JupyterFrontEnd,
     registry: IJupyterWidgetRegistry,
-    mimeregistry: IRenderMimeRegistry,
     tracker: IMimeDocumentTracker
   ) => {
     console.log('JupyterLab extension jupyterlab_kaitai is activated!');
-    mimeregistry.addFactory;
     registry.registerWidget({
       name: MODULE_NAME,
       version: MODULE_VERSION,
