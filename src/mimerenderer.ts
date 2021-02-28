@@ -1,5 +1,8 @@
 import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
+import { HexViewer } from './HexViewer';
+import { HexViewerDataProvider } from './widget';
+import { base64ToBuffer } from '@jupyter-widgets/base';
 
 /**
  * The default mime type for the extension.
@@ -28,11 +31,18 @@ export class OutputWidget extends Widget implements IRenderMime.IRenderer {
    * Render {{cookiecutter.mimetype_name}} into this widget's node.
    */
   renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-    const data = model.data[this._mimeType] as string;
-    this.node.textContent = data.slice(0, 16384);
+    const buffer = base64ToBuffer(model.data[this._mimeType] as string);
+    this.dataProvider = new HexViewerDataProvider(new Uint8Array(buffer));
+    this.viewer = new HexViewer(this.node, this.dataProvider);
     return Promise.resolve();
   }
 
+  onResize(event: Widget.ResizeMessage): void {
+    this.viewer.resize();
+  }
+
+  private dataProvider: HexViewerDataProvider;
+  private viewer: HexViewer;
   private _mimeType: string;
 }
 
@@ -64,7 +74,8 @@ const extension: IRenderMime.IExtension = {
     name: 'hexviewer',
     primaryFileType: 'mimerenderer-hexviewer',
     fileTypes: ['mimerenderer-hexviewer'],
-    defaultFor: ['mimerenderer-hexviewer']
+    defaultFor: ['mimerenderer-hexviewer'],
+    modelName: 'base64'
   }
 };
 

@@ -20,7 +20,7 @@ import { IJupyterWidgetRegistry } from '@jupyter-widgets/base';
 
 import * as mimerendererExports from './mimerenderer';
 
-import * as widgetExports from './widget';
+import { HexViewerModel, HexViewerView } from './widget';
 
 const EXTENSION_NAME = MODULE_NAME + ':plugin';
 
@@ -42,7 +42,7 @@ const extension: JupyterFrontEndPlugin<void> = {
     registry.registerWidget({
       name: MODULE_NAME,
       version: MODULE_VERSION,
-      exports: widgetExports
+      exports: { HexViewerModel, HexViewerView }
     });
 
     const mimePlugin = createRendermimePlugin(

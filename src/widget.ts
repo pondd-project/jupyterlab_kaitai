@@ -19,7 +19,7 @@ function deserializeArray(dataview: DataView): Uint8Array {
   return new Uint8Array(dataview.buffer);
 }
 
-class HexViewerDataProvider implements IDataProvider {
+export class HexViewerDataProvider implements IDataProvider {
   constructor(buffer: Uint8Array) {
     this.length = buffer.length;
     this.buffer = buffer;
