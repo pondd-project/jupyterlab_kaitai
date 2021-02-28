@@ -97,6 +97,9 @@ export class HexViewerView extends DOMWidgetView {
     this.converterPanel = document.createElement('div');
     this.converterPanel.classList.add('converterPanel');
     this.el.appendChild(this.converterPanel);
+    this.converterPanel.innerHTML = renderPanel(
+      this.converterPanelModel.type_conversion_results
+    );
     await this.setupEventListeners();
     this.displayed.then(() => {
       this.viewer.resize();

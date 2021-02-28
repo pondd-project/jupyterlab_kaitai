@@ -2,7 +2,6 @@ import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Widget } from '@lumino/widgets';
 import { HexViewer } from './HexViewer';
 import { HexViewerDataProvider } from './widget';
-import { base64ToBuffer } from '@jupyter-widgets/base';
 import { UUID } from '@lumino/coreutils';
 import { ConverterPanelModel } from './converterpanel';
 import { renderPanel } from './utils';
@@ -42,6 +41,9 @@ export class OutputWidget extends Widget implements IRenderMime.IRenderer {
     this.converterPanel = document.createElement('div');
     this.converterPanel.classList.add('converterPanel');
     this.node.appendChild(this.converterPanel);
+    this.converterPanel.innerHTML = renderPanel(
+      this.converterPanelModel.type_conversion_results
+    );
     this.viewer.onSelectionChanged = () => {
       this.converterPanelModel.update(
         this.dataProvider,
@@ -57,13 +59,17 @@ export class OutputWidget extends Widget implements IRenderMime.IRenderer {
    * Render into this widget's node.
    */
   renderModel(model: IRenderMime.IMimeModel): Promise<void> {
-    let s = model.data[this._mimeType] as string;
-    /* Manually pad the base64 string with '=' marks */
-    if (s.length % 4 > 0) {
-      s = s + '='.repeat(4 - (s.length % 4));
+    const s = model.data[this._mimeType] as string;
+    // This is modified from the jupyterlab/pdf-extension, which itself cites
+    // https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
+    const byteCharacters = atob(s);
+    const byteArray = new Uint8Array(byteCharacters.length);
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 1) {
+      byteArray[offset] = byteCharacters.charCodeAt(offset);
     }
-    const buffer = base64ToBuffer(s);
-    this.dataProvider = new HexViewerDataProvider(new Uint8Array(buffer));
+
+    this.dataProvider = new HexViewerDataProvider(byteArray);
     this.viewer.dataProvider = this.dataProvider;
     this.viewer.resize();
     return Promise.resolve();
@@ -107,9 +113,9 @@ const extension: IRenderMime.IExtension = {
     }
   ],
   documentWidgetFactoryOptions: {
-    name: 'hexviewer',
+    name: 'HexViewer',
     primaryFileType: 'mimerenderer-hexviewer',
-    fileTypes: ['mimerenderer-hexviewer'],
+    fileTypes: ['*'],
     defaultFor: ['mimerenderer-hexviewer'],
     modelName: 'base64'
   }
