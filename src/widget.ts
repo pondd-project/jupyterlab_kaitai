@@ -47,6 +47,17 @@ export class HexViewerModel extends DOMWidgetModel {
   initialize(attributes: any, options: any): void {
     super.initialize(attributes, options);
     this.buffer = new Uint8Array(this.get('buffer'));
+    this.on('msg:custom', this.onCommand.bind(this));
+  }
+
+  private async onCommand(command: any, buffers: any): Promise<void> {
+    switch (command.name) {
+      case 'scrollTo':
+        // This needs implementing
+        break;
+      default:
+        break;
+    }
   }
 
   static serializers: ISerializers = {
