@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from ._version import __version__
+from .hexviewer import HexViewer
 
 HERE = Path(__file__).parent.resolve()
 
@@ -14,4 +15,3 @@ def _jupyter_labextension_paths():
         "src": "labextension",
         "dest": data["name"]
     }]
-
