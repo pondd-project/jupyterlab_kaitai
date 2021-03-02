@@ -1,5 +1,6 @@
 # jupyterlab_kaitai
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/matthewturk/jupyterlab_kaitai/HEAD?urlpath=lab%2Ftree%2Fexamples%2FWidget.ipynb)
 ![Github Actions Status](https://github.com/matthewturk/jupyterlab_kaitai/workflows/Build/badge.svg)
 
 Experiment with Kaitai Struct in jupyterlab
