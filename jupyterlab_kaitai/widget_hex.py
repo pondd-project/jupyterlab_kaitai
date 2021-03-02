@@ -6,7 +6,7 @@ from ipywidgets.widgets.trait_types import bytes_serialization
 EXTENSION_VERSION = __version__
 
 @ipywidgets.register
-class HexViewerModel(ipywidgets.DOMWidget):
+class HexViewer(ipywidgets.DOMWidget):
     _model_name = traitlets.Unicode('HexViewerModel').tag(sync=True)
     _model_module = traitlets.Unicode('jupyterlab_kaitai').tag(sync=True)
     _model_module_version = traitlets.Unicode(EXTENSION_VERSION).tag(sync=True)
@@ -16,3 +16,7 @@ class HexViewerModel(ipywidgets.DOMWidget):
 
     buffer = traitlets.Bytes(allow_none=False).tag(
         sync=True, **bytes_serialization)
+
+    def __init__(self, buffer=None, *args, **kwargs):
+        kwargs["buffer"] = buffer if buffer is not None else b""
+        super().__init__(*args, **kwargs)

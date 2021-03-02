@@ -28,19 +28,19 @@
     "url": "https://github.com/matthewturk/jupyterlab_kaitai.git"
   },
   "scripts": {
-    "build": "jlpm run build:lib && jlpm run build:labextension:dev",
-    "build:prod": "jlpm run build:lib && jlpm run build:labextension",
+    "build": "jlpm build:lib && jlpm build:labextension:dev",
+    "build:prod": "jlpm build:lib && jlpm build:labextension",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:lib": "tsc",
-    "clean": "jlpm run clean:lib",
+    "clean": "jlpm clean:lib",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:labextension": "rimraf jupyterlab_kaitai/labextension",
-    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
+    "clean:all": "jlpm clean:lib && jlpm clean:labextension",
     "eslint": "eslint . --ext .ts,.tsx --fix",
     "eslint:check": "eslint . --ext .ts,.tsx",
     "install:extension": "jupyter labextension develop --overwrite .",
-    "prepare": "jlpm run clean && jlpm run build:prod",
+    "prepare": "jlpm clean && jlpm build:prod",
     "watch": "run-p watch:src watch:labextension",
     "watch:src": "tsc -w",
     "watch:labextension": "jupyter labextension watch ."
@@ -77,7 +77,28 @@
   ],
   "styleModule": "style/index.js",
   "jupyterlab": {
-    "extension": true,
-    "outputDir": "jupyterlab_kaitai/labextension"
+    "extension": "lib/plugin.js",
+    "outputDir": "jupyterlab_kaitai/labextension",
+    "sharedPackages": {
+      "@jupyter-widgets/base": {
+        "bundled": false,
+        "singleton": true
+      }
+    },
+    "discovery": {
+      "kernel": [
+        {
+          "kernel_spec": {
+            "language": "^python"
+          },
+          "base": {
+            "name": "jupyterlab_kaitai"
+          },
+          "managers": [
+            "pip"
+          ]
+        }
+      ]
+    }
   }
 }
