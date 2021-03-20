@@ -111,6 +111,9 @@ export class HexViewerView extends DOMWidgetView {
           this.viewer.selectionStart
         );
         this.renderConverterPanel();
+        this.model.set('selectionStart', this.viewer.selectionStart);
+        this.model.set('selectionEnd', this.viewer.selectionEnd);
+        this.model.save();
       };
     });
   }
