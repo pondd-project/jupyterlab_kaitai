@@ -38,6 +38,8 @@ export class HexViewerModel extends DOMWidgetModel {
     return {
       ...super.defaults(),
       buffer: undefined,
+      selectionStart: -1,
+      selectionEnd: -1,
       _model_name: HexViewerModel.model_name,
       _model_module: HexViewerModel.model_module,
       _model_module_version: HexViewerModel.model_module_version
@@ -121,7 +123,19 @@ export class HexViewerView extends DOMWidgetView {
   }
 
   async setupEventListeners(): Promise<void> {
+    this.model.on_some_change(
+      ['selectionStart', 'selectionEnd'],
+      this.updateSelection,
+      this
+    );
     return;
+  }
+
+  private async updateSelection() {
+    this.viewer.setSelection(
+      this.model.get('selectionStart'),
+      this.model.get('selectionEnd')
+    );
   }
 
   viewer: HexViewer;
