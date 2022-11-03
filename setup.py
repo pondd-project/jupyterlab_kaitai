@@ -2,15 +2,9 @@
 jupyterlab_kaitai setup
 """
 import json
+import sys
 from pathlib import Path
 
-from jupyter_packaging import (
-    create_cmdclass,
-    install_npm,
-    ensure_targets,
-    combine_commands,
-    skip_if_exists
-)
 import setuptools
 
 HERE = Path(__file__).parent.resolve()
@@ -18,39 +12,21 @@ HERE = Path(__file__).parent.resolve()
 # The name of the project
 name = "jupyterlab_kaitai"
 
-lab_path = (HERE / name / "labextension")
+lab_path = HERE / name.replace("-", "_") / "labextension"
 
 # Representative files that should exist after a successful build
-jstargets = [
-    str(lab_path / "package.json"),
-]
-
-package_data_spec = {
-    name: ["*"],
-}
+ensured_targets = [str(lab_path / "package.json"), str(lab_path / "static/style.js")]
 
 labext_name = "jupyterlab_kaitai"
 
 data_files_spec = [
-    ("share/jupyter/labextensions/%s" % labext_name, str(lab_path), "**"),
-    ("share/jupyter/labextensions/%s" % labext_name, str(HERE), "install.json"),
+    (
+        f"share/jupyter/labextensions/{labext_name}",
+        str(lab_path.relative_to(HERE)),
+        "**",
+    ),
+    (f"share/jupyter/labextensions/{labext_name}", str("."), "install.json"),
 ]
-
-cmdclass = create_cmdclass("jsdeps",
-    package_data_spec=package_data_spec,
-    data_files_spec=data_files_spec
-)
-
-js_command = combine_commands(
-    install_npm(HERE, build_cmd="build:prod", npm=["jlpm"]),
-    ensure_targets(jstargets),
-)
-
-is_repo = (HERE / ".git").exists()
-if is_repo:
-    cmdclass["jsdeps"] = js_command
-else:
-    cmdclass["jsdeps"] = skip_if_exists(jstargets, js_command)
 
 long_description = (HERE / "README.md").read_text()
 
@@ -67,15 +43,8 @@ setup_args = dict(
     license=pkg_json["license"],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    cmdclass=cmdclass,
-    packages=setuptools.find_packages(),
-    install_requires=[
-        "jupyterlab~=3.0",
-        "ipywidgets>=7.0.0"
-    ],
     zip_safe=False,
     include_package_data=True,
-    python_requires=">=3.6",
     platforms="Linux, Mac OS X, Windows",
     keywords=["Jupyter", "JupyterLab", "JupyterLab3"],
     classifiers=[
@@ -90,6 +59,25 @@ setup_args = dict(
     ],
 )
 
+try:
+    from jupyter_packaging import get_data_files, npm_builder, wrap_installers
+
+    post_develop = npm_builder(
+        build_cmd="install:extension", source_dir="src", build_dir=lab_path
+    )
+    setup_args["cmdclass"] = wrap_installers(
+        post_develop=post_develop, ensured_targets=ensured_targets
+    )
+    setup_args["data_files"] = get_data_files(data_files_spec)
+except ImportError as e:
+    import logging
+
+    logging.basicConfig(format="%(levelname)s: %(message)s")
+    logging.warning(
+        "Build tool `jupyter-packaging` is missing. Install it with pip or conda."
+    )
+    if not ("--name" in sys.argv or "--version" in sys.argv):
+        raise e
 
 if __name__ == "__main__":
     setuptools.setup(**setup_args)
